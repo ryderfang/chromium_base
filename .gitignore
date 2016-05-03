@@ -4,6 +4,8 @@
 *.o
 *.obj
 *.sdf
+*.user
+*.suo
 
 # Precompiled Headers
 *.gch
