@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*.sdf
 
 # Precompiled Headers
 *.gch
@@ -26,3 +27,5 @@
 *.exe
 *.out
 *.app
+
+Debug/
