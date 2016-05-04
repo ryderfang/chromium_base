@@ -57,6 +57,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>false</TreatWarningAsError>
       <WarningLevel>Level4</WarningLevel>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>advapi32.lib;dbgHelp.lib;ole32.lib;shell32.lib;user32.lib;ws2_32.lib</AdditionalDependencies>
