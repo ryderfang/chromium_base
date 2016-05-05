@@ -1,8 +1,6 @@
 #ifndef TEST_QT_H
 #define TEST_QT_H
 
-#define NOMINMAX
-
 #include <QtWidgets/QWidget>
 #include "qpushbutton.h"
 #include "qprogressbar.h"
@@ -14,7 +12,8 @@
 
 #include <vector>
 
-class test_qt : public QWidget
+class test_qt 
+    : public QWidget
 {
     Q_OBJECT
 
@@ -41,6 +40,8 @@ public slots:
 
     void sltStartAll();
     void sltPauseAll();
+
+    void sltUpdateProgress(int pos);
 
 private:
     scoped_refptr<WorkLoop> work_loop_;

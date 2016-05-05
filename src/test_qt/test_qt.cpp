@@ -64,6 +64,8 @@ test_qt::test_qt(QWidget *parent)
 
     work_loop_ = new WorkLoop();
     work_loop_->Init();
+
+    connect(work_loop_.get(), SIGNAL(update_progress(int)), this, SLOT(sltUpdateProgress(int)));
 }
 
 test_qt::~test_qt() {
@@ -75,15 +77,19 @@ test_qt::~test_qt() {
 }
 
 void test_qt::sltStart0() {
-    work_loop_->Start("file3");
+    work_loop_->Start("file1");
 }
 
 void test_qt::sltPause0() {
-    work_loop_->Pause("file3");
+    work_loop_->Pause("file1");
 }
 
 void test_qt::sltDelete0() {
 
+}
+
+void test_qt::sltUpdateProgress(int pos) {
+    progress_[0]->setValue(pos);
 }
 
 void test_qt::sltStart1() {

@@ -17,7 +17,11 @@
 #include <string>
 
 class WorkLoop :
-    public base::RefCountedThreadSafe<WorkLoop> {
+    public QObject,
+    public base::RefCountedThreadSafe<WorkLoop>,
+    public Foo::TaskObserver {
+    Q_OBJECT
+
 public:
     WorkLoop(): event_(false, false),
                 timer_(true, true) {
@@ -60,9 +64,18 @@ public:
             base::Bind(&Foo::stop, task_pool_));
     }
 
+    void NotifyProgress(const std::string& name, int pos) {
+        int p = pos;
+        emit update_progress(pos);
+    }
+
+signals:
+    void update_progress(int pos);
+
 private:
     void InitTaskPool() {
         task_pool_ = new Foo(2, &event_);
+        task_pool_->add_observer(this);
     }
 
 private:
@@ -86,6 +99,8 @@ private:
 
 private:
     scoped_refptr<Foo> task_pool_;
+
+
 
     base::Thread* work_thread_;
 

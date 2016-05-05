@@ -50,6 +50,12 @@
     <ClCompile Include="GeneratedFiles\qrc_test_qt.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_work_loop.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_work_loop.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="test_qt.h">
@@ -61,15 +67,15 @@
     <CustomBuild Include="test_qt.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="work_loop.hpp">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_test_qt.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="task_pool.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="work_loop.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="global_def.h">
