@@ -6,55 +6,94 @@
 #include "base/message_loop/message_loop.h"
 #include "base/run_loop.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/memory/weak_ptr.h"
 #include "base/threading/thread.h"
+#include "base/synchronization/waitable_event.h"
+#include "base/timer/timer.h"
 
 #include "task_pool.hpp"
 
+#include <map>
 #include <string>
 
-class WorkLoop {
+class WorkLoop :
+    public base::RefCountedThreadSafe<WorkLoop> {
 public:
-    WorkLoop() {
-        main_task_thread_ = new base::Thread("main task");
-        if (!main_task_thread_->IsRunning()) {
-            main_task_thread_->Start();
-        }
-
-        main_task_thread_->message_loop()->PostTask(FROM_HERE, 
-            base::Bind(&WorkLoop::Run, base::Unretained(this)));
+    WorkLoop(): event_(false, false),
+                timer_(true, true) {
     }
 
     ~WorkLoop() {
-        
     }
 
-    void DoWork(const std::string& file) {
-        task_pool_->upload_file(file);
+    void Init() {
+        work_thread_ = new base::Thread("Work Thread");
+        if (!work_thread_->IsRunning()) {
+            work_thread_->Start();
+        }
+        work_thread_->message_loop()->PostTask(FROM_HERE, 
+            base::Bind(&WorkLoop::InitTaskPool, this));
+
+        control_thread_ = new base::Thread("Control Thread");
+        if (!control_thread_->IsRunning()) {
+            control_thread_->Start();
+        }
+        control_thread_->message_loop()->PostTask(FROM_HERE, 
+            base::Bind(&WorkLoop::InitTimer, this));
     }
 
-    void Continue() {
-        main_task_thread_->message_loop()->PostTask(FROM_HERE,
-            base::Bind(&Foo::start_agagin, task_pool_));
+    void Start(const std::string& file_name) {
+        control_thread_->message_loop()->PostTask(FROM_HERE, 
+            base::Bind(&WorkLoop::ResetTimer, this));
+
+        work_thread_->message_loop()->PostTask(FROM_HERE, 
+            base::Bind(&Foo::upload_file, task_pool_, file_name));
     }
 
-    void Pause() {
-        main_task_thread_->message_loop()->PostTask(FROM_HERE,
-            base::Bind(&Foo::pause, task_pool_));
-    }
-        
-    void Run() {
-        task_pool_ = new Foo(5);
+    void Pause(const std::string& file_name) {
+        control_thread_->message_loop()->PostTask(FROM_HERE, 
+            base::Bind(&WorkLoop::StopTimer, this));
     }
 
     void Stop() {
-        main_task_thread_->message_loop()->PostTask(FROM_HERE,
+        work_thread_->message_loop()->PostTask(FROM_HERE, 
             base::Bind(&Foo::stop, task_pool_));
     }
 
 private:
-    base::Thread* main_task_thread_;
+    void InitTaskPool() {
+        task_pool_ = new Foo(2, &event_);
+    }
 
+private:
+    void InitTimer() {
+        timer_.Start(FROM_HERE, base::TimeDelta::FromMicroseconds(1), 
+            base::Bind(&WorkLoop::ScheduleTask, this));
+        timer_.Reset();
+    }
+
+    void ScheduleTask() {
+        event_.Signal();
+    }
+
+    void ResetTimer() {
+        timer_.Reset();
+    }
+
+    void StopTimer() {
+        timer_.Stop();
+    }
+
+private:
     scoped_refptr<Foo> task_pool_;
+
+    base::Thread* work_thread_;
+
+    base::Thread* control_thread_;
+
+    base::WaitableEvent event_;
+
+    base::Timer timer_;
 
     DISALLOW_COPY_AND_ASSIGN(WorkLoop);
 };

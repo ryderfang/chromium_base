@@ -120,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_test_qt.h" />
+    <ClInclude Include="global_def.h" />
     <ClInclude Include="task_pool.hpp" />
     <ClInclude Include="work_loop.hpp" />
   </ItemGroup>

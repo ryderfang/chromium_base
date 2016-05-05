@@ -72,5 +72,8 @@
     <ClInclude Include="work_loop.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="global_def.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
