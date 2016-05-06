@@ -5,6 +5,8 @@
 #include "qboxlayout.h"
 #include "qmessagebox.h"
 
+#include "base/strings/string_number_conversions.h"
+
 #include <vector>
 #include <string>
 
@@ -26,6 +28,7 @@ test_qt::test_qt(QWidget *parent)
         progress_[i] = new QProgressBar(this);
         progress_[i]->setFixedSize(200, 10);
         progress_[i]->setValue(0);
+        
         start_btn_[i] = new QPushButton(this);
         start_btn_[i]->setText(tr("Start!"));
         pause_btn_[i] = new QPushButton(this);
@@ -77,7 +80,53 @@ test_qt::~test_qt() {
 }
 
 void test_qt::sltStart0() {
-    work_loop_->Start("file1");
+    //work_loop_->Start("file1");
+    //for (int i = 0; i < 32; ++i) {
+    //    std::string t = "file" + base::IntToString(i);
+    //    work_loop_->Start(t);
+    //}
+
+    VideoInfo f1("file1");
+    for (int i = 0; i < 10; ++i) {
+        std::string t = "file1_p" + base::IntToString(i);
+        f1.piece.push_back(t);
+    }
+
+    VideoInfo f2("file2");
+    for (int i = 0; i < 2; ++i) {
+        std::string t = "file2_p" + base::IntToString(i);
+        f2.piece.push_back(t);
+    }
+
+    VideoInfo f3("file3");
+    for (int i = 0; i < 14; ++i) {
+        std::string t = "file3_p" + base::IntToString(i);
+        f3.piece.push_back(t);
+    }
+
+    VideoInfo f4("file4");
+    for (int i = 0; i < 22; ++i) {
+        std::string t = "file4_p" + base::IntToString(i);
+        f4.piece.push_back(t);
+    }
+
+    VideoInfo f5("file5");
+    for (int i = 0; i < 8; ++i) {
+        std::string t = "file5_p" + base::IntToString(i);
+        f5.piece.push_back(t);
+    }
+
+    work_loop_->PushData(f1.file_name, f1);
+    work_loop_->PushData(f2.file_name, f2);
+    work_loop_->PushData(f3.file_name, f3);
+    work_loop_->PushData(f4.file_name, f4);
+    work_loop_->PushData(f5.file_name, f5);
+
+    work_loop_->Start(f1.file_name);
+    work_loop_->Start(f2.file_name);
+    work_loop_->Start(f3.file_name);
+    work_loop_->Start(f4.file_name);
+    work_loop_->Start(f5.file_name);
 }
 
 void test_qt::sltPause0() {

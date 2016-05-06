@@ -3,8 +3,10 @@
 
 #include "base/bind.h"
 #include "base/memory/scoped_ptr.h"
+#include "base/message_loop/message_loop.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/sequenced_worker_pool.h"
+#include "base/threading/platform_thread.h"
 #include "base/threading/thread.h"
 #include "base/timer/timer.h"
 #include "global_def.h"
@@ -13,90 +15,48 @@
 #include <vector>
 #include <string>
 
+class WorkDelegate {
+public:
+    WorkDelegate()  {}
+
+    virtual void CompleteOne(const std::string& name, int offset) = 0;
+
+protected:
+    ~WorkDelegate() {} ;
+};
+
 class Foo 
     : public base::RefCountedThreadSafe<Foo> {
 public:
-
-    class TaskObserver {
-    public:
-        TaskObserver() {}
-
-        virtual void NotifyProgress(const std::string& name, int pos) = 0;
-
-    protected:
-        virtual ~TaskObserver() {};
-    };
-
-    Foo(size_t t, base::WaitableEvent* e)
+    Foo(size_t t, WorkDelegate* loop)
         : worker_pool_(new base::SequencedWorkerPool(t, "fangr_")),
-          complete_(false, true),
-          event_(e) {
-        VideoInfo f1;
-        f1.piece.resize(100, "file1");
-        video_map_["file1"] = f1;
-
-        VideoInfo f2;
-        f2.piece.resize(200, "fiel2");
-        video_map_["file2"] = f2;
-
-        VideoInfo f3;
-        f3.piece.resize(1000, "file3");
-        video_map_["file3"] = f3;
-    }
-
-    void add_observer(TaskObserver* ob) {
-        observer_ = ob;
+          delegate_(loop) {
     }
 
     void stop() {
         worker_pool_->Shutdown();
     }
 
-    void upload_file(const std::string& file_name) {
-        token_ = worker_pool_->GetNamedSequenceToken(file_name);
-
-        name_ = file_name;
-
-        size_t& pos = video_map_[name_].offset;
-        size_t sz = video_map_[name_].piece.size();
-
-        while (pos < sz) {
-            event_->Wait();
-            complete_.Wait();
-
-            double radio = (double) pos / sz * 100;
-            observer_->NotifyProgress(file_name, (int)(radio));
-
-            worker_pool_->PostSequencedWorkerTaskWithShutdownBehavior(token_, FROM_HERE, 
-                base::Bind(&Foo::DoWork, this, pos, video_map_[name_].piece[pos]), 
-                base::SequencedWorkerPool::CONTINUE_ON_SHUTDOWN);
-            ++pos;
-        }
+    void upload_one(const std::string& name, int offset, const std::string& piece) {
+        worker_pool_->PostTaskAndReply(FROM_HERE, 
+            base::Bind(&Foo::DoUpload, this, name, offset, piece),
+            base::Bind(&WorkDelegate::CompleteOne, base::Unretained(delegate_), name, offset));
     }
 
 private:
-
-    void DoWork(size_t pos, std::string p) {
+    void DoUpload(const std::string& name, int offset, const std::string& piece) {
         ::Sleep(500);
-        qDebug("%s--%d", p.c_str(), pos);
-        complete_.Signal();
+        qDebug() << name.c_str() << " " << piece.c_str() << "--" << base::PlatformThread::GetName();
     }
-
 
 private:
     scoped_refptr<base::SequencedWorkerPool> worker_pool_;
 
-    base::SequencedWorkerPool::SequenceToken token_;
+    //base::SequencedWorkerPool::SequenceToken token_;
 
-    std::string name_;
+    //std::string name_;
 
-    std::map<std::string, VideoInfo> video_map_;
-
-    base::WaitableEvent* event_;
-
-    base::WaitableEvent complete_;
-
-    TaskObserver* observer_;
+    WorkDelegate* delegate_;
 };
 
 #endif // !TASK_POOL_HPP_

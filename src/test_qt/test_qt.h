@@ -8,8 +8,6 @@
 #include "ui_test_qt.h"
 #include "work_loop.hpp"
 
-#include "base/threading/thread.h"
-
 #include <vector>
 
 class test_qt 

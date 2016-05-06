@@ -7,7 +7,15 @@
 #include <vector>
 
 struct VideoInfo {
-    VideoInfo() : offset(0) {}
+    VideoInfo() : offset(0) {
+    }
+
+    VideoInfo(const std::string& name) : 
+        file_name(name),
+        offset(0) {
+    }
+
+    size_t sz() { return piece.size(); }
 
     std::string file_name;
 
