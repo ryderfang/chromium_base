@@ -24,22 +24,16 @@ private:
     void DoWork();
 
 public slots:
-    void sltStart0();
-    void sltStart1();
-    void sltStart2();
+    void sltStart();
 
-    void sltPause0();
-    void sltPause1();
-    void sltPause2();
+    void sltPause();
 
-    void sltDelete0();
-    void sltDelete1();
-    void sltDelete2();
+    void sltDelete();
 
     void sltStartAll();
     void sltPauseAll();
 
-    void sltUpdateProgress(int pos);
+    void sltUpdateProgress(const std::string& name, int pos, int64 speed);
 
 private:
     scoped_refptr<WorkLoop> work_loop_;
@@ -47,12 +41,6 @@ private:
     Ui::test_qtClass ui;
 
     std::vector<QProgressBar*> progress_;
-  
-    std::vector<QPushButton*> start_btn_;
-
-    std::vector<QPushButton*> pause_btn_;
-
-    std::vector<QPushButton*> delete_btn_;
 
     QPushButton* start_all_;
 
