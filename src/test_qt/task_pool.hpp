@@ -18,7 +18,7 @@ class WorkDelegate {
 public:
     WorkDelegate()  {}
 
-    virtual void CompleteOne(const std::string& name, int offset, int64 cost) = 0;
+    virtual void CompleteOne(const std::string& name, int offset, int64* cost) = 0;
 
 protected:
     ~WorkDelegate() {} ;
@@ -29,8 +29,7 @@ class Foo
 public:
     Foo(size_t t, WorkDelegate* loop)
         : worker_pool_(new base::SequencedWorkerPool(t, "fangr_")),
-          delegate_(loop),
-          cost_(0) {
+          delegate_(loop) {
     }
 
     void stop() {
@@ -38,25 +37,23 @@ public:
     }
 
     void upload_one(const std::string& name, int offset, const std::string& piece) {
+        int64* cost = new int64(base::TimeTicks::Now().ToInternalValue());
         worker_pool_->PostTaskAndReply(FROM_HERE, 
-            base::Bind(&Foo::DoUpload, this, name, offset, piece),
-            base::Bind(&WorkDelegate::CompleteOne, base::Unretained(delegate_), name, offset, cost_));
+            base::Bind(&Foo::DoUpload, this, name, offset, piece, cost),
+            base::Bind(&WorkDelegate::CompleteOne, base::Unretained(delegate_), name, offset, base::Owned(cost)));
     }
 
 private:
-    void DoUpload(const std::string& name, int offset, const std::string& piece) {
-        base::TimeTicks start = base::TimeTicks::Now();
+    void DoUpload(const std::string& name, int offset, const std::string& piece, int64* cost) {
         ::Sleep(500);
         qDebug() << name.c_str() << " " << piece.c_str() << "--" << base::PlatformThread::GetName();
-        cost_ = (base::TimeTicks::Now() - start).ToInternalValue();
+        *cost = base::TimeTicks::Now().ToInternalValue() - *cost;
     }
 
 private:
     scoped_refptr<base::SequencedWorkerPool> worker_pool_;
 
     WorkDelegate* delegate_;
-
-    int64 cost_;
 
     DISALLOW_COPY_AND_ASSIGN(Foo);
 };
