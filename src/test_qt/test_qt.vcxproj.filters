@@ -81,5 +81,8 @@
     <ClInclude Include="global_def.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\third_party\sqlite3\sqlite3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

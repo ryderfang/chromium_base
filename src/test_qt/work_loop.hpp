@@ -77,7 +77,7 @@ public:
             base::Bind(&Foo::stop, task_pool_));
     }
 
-    void CompleteOne(const std::string& name, int offset, int64* cost) {
+    void CompleteOne(const std::string& name, int offset, std::wstring* cost) {
         base::AutoLock auto_lock(lock_);
         auto it = running_tasks_.find(name);
         // stoped
@@ -89,7 +89,8 @@ public:
         }
 
         int pos = (double)(offset + 1) / video_map_[name].sz() * 100;
-        emit update_progress(name, pos, *cost);
+        qDebug() << cost->c_str();
+        //emit update_progress(name, pos, *cost);
         
         // paused
         if (it == running_tasks_.end())  {

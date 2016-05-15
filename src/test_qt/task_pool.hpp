@@ -18,7 +18,7 @@ class WorkDelegate {
 public:
     WorkDelegate()  {}
 
-    virtual void CompleteOne(const std::string& name, int offset, int64* cost) = 0;
+    virtual void CompleteOne(const std::string& name, int offset, std::wstring* cost) = 0;
 
 protected:
     ~WorkDelegate() {} ;
@@ -37,17 +37,21 @@ public:
     }
 
     void upload_one(const std::string& name, int offset, const std::string& piece) {
-        int64* cost = new int64(base::TimeTicks::Now().ToInternalValue());
-        worker_pool_->PostTaskAndReply(FROM_HERE, 
-            base::Bind(&Foo::DoUpload, this, name, offset, piece, cost),
-            base::Bind(&WorkDelegate::CompleteOne, base::Unretained(delegate_), name, offset, base::Owned(cost)));
+        //int64* cost = new int64(base::TimeTicks::Now().ToInternalValue());
+        std::wstring* cost = new std::wstring();
+        //worker_pool_->PostTaskAndReply(FROM_HERE, 
+        //    base::Bind(&Foo::DoUpload, this, name, offset, piece, cost),
+        //    base::Bind(&WorkDelegate::CompleteOne, base::Unretained(delegate_), name, offset, base::Owned(cost)));
+        worker_pool_->PostTask(FROM_HERE,
+            base::Bind(&Foo::DoUpload, this, name, offset, piece, cost));
     }
 
 private:
-    void DoUpload(const std::string& name, int offset, const std::string& piece, int64* cost) {
+    void DoUpload(const std::string& name, int offset, const std::string& piece, std::wstring* cost) {
         ::Sleep(500);
         qDebug() << name.c_str() << " " << piece.c_str() << "--" << base::PlatformThread::GetName();
-        *cost = base::TimeTicks::Now().ToInternalValue() - *cost;
+        //*cost = base::TimeTicks::Now().ToInternalValue() - *cost;
+        *cost = L"Shit!!";
     }
 
 private:

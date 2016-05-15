@@ -7,6 +7,8 @@
 
 #include "base/strings/string_number_conversions.h"
 
+#include "third_party/sqlite3/sqlite3.h"
+
 #include <vector>
 #include <string>
 
