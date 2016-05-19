@@ -6,6 +6,7 @@
 #include "qmessagebox.h"
 
 #include "base/strings/string_number_conversions.h"
+#include "base/logging.h"
 
 #include "third_party/sqlite3/sqlite3.h"
 
@@ -69,6 +70,13 @@ test_qt::test_qt(QWidget *parent)
     qRegisterMetaType<std::string>("std::string");
     connect(work_loop_.get(), SIGNAL(update_progress(const std::string&, int, int64)),
         this, SLOT(sltUpdateProgress(const std::string&, int, int64)));
+
+    logging::LoggingSettings settings;
+    settings.logging_dest = logging::LOG_TO_FILE;
+    settings.log_file = L"E:\\fuck.log";
+    logging::InitLogging(settings);
+
+    LOG(INFO) << "test logging" << "\r\n";
 
     static bool init = false;
     if (!init) {
